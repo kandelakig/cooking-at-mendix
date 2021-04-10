@@ -36,7 +36,7 @@ public class Recipe {
   private List<RecipeIngredient> ingredients;
 
   @ElementCollection
-  @Column(name = "step")
+  @Column(name = "step", length = 4096)
   private List<String> steps;
 
   public Recipe() {
