@@ -9,11 +9,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
+@Table(name = "recipes")
 public class Recipe {
 
   @Id
@@ -24,14 +26,17 @@ public class Recipe {
   private String title;
 
   @ManyToMany
+  @JoinTable(name = "recipe_categories")
   private Set<Category> categories;
 
   private Integer yield;
 
   @OneToMany(cascade = CascadeType.ALL)
+  @JoinColumn(name = "recipe_id")
   private Set<RecipeIngredient> ingredients;
 
   @ElementCollection
+  @Column(name = "step")
   private Set<String> steps;
 
   public Recipe() {
