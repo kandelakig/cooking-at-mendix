@@ -36,7 +36,7 @@ import com.kandela.mendix.cooking.repo.CategoryRepository;
 import com.kandela.mendix.cooking.repo.RecipeRepository;
 
 @WebMvcTest
-public class CookingAtMendixApplicationTests {
+public class MockTests {
 
   @Autowired
   private MockMvc mockMvc;
@@ -67,12 +67,8 @@ public class CookingAtMendixApplicationTests {
       "Date: Sun, 27 Oct 1996 20:04:57 +0000\n" +
       "From: Cheryl Gimenez &lt;clgimenez@earthlink.net&gt;\n";
 
-  CookingAtMendixApplicationTests() {
+  MockTests() {
     String[] categoriesRaw = { "Main dish", "Cake", "Veggie" };
-
-    categories = LongStream.range(1L, 4L)
-        .mapToObj(i -> new Category(i, categoriesRaw[(int) (i - 1)]))
-        .collect(Collectors.toList());
 
     String[][] ingredientsRaw = {
         { "Zucchini; cubed 1/2", "1", "pound" },
@@ -86,6 +82,10 @@ public class CookingAtMendixApplicationTests {
     String[] steps = { "First Step", "", bigString };
 
     String[] recipesRaw = { "Good Recipe", "Bad Recipe", "Ugly Recipe" };
+
+    categories = LongStream.range(1L, 4L)
+        .mapToObj(i -> new Category(i, categoriesRaw[(int) (i - 1)]))
+        .collect(Collectors.toList());
 
     recipes = IntStream.range(0, 3)
         .mapToObj(i -> new Recipe(100L + i,
