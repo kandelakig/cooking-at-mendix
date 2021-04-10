@@ -1,6 +1,6 @@
 package com.kandela.mendix.cooking.model;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,23 +27,23 @@ public class Recipe {
 
   @ManyToMany
   @JoinTable(name = "recipe_categories")
-  private Set<Category> categories;
+  private List<Category> categories;
 
   private Integer yield;
 
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "recipe_id")
-  private Set<RecipeIngredient> ingredients;
+  private List<RecipeIngredient> ingredients;
 
   @ElementCollection
   @Column(name = "step")
-  private Set<String> steps;
+  private List<String> steps;
 
   public Recipe() {
     super();
   }
 
-  public Recipe(String title, Set<Category> categories, Integer yield, Set<RecipeIngredient> ingredients, Set<String> steps) {
+  public Recipe(String title, List<Category> categories, Integer yield, List<RecipeIngredient> ingredients, List<String> steps) {
     super();
     this.title = title;
     this.categories = categories;
@@ -52,7 +52,7 @@ public class Recipe {
     this.steps = steps;
   }
 
-  public Recipe(Long id, String title, Set<Category> categories, Integer yield, Set<RecipeIngredient> ingredients, Set<String> steps) {
+  public Recipe(Long id, String title, List<Category> categories, Integer yield, List<RecipeIngredient> ingredients, List<String> steps) {
     super();
     this.id = id;
     this.title = title;
@@ -78,11 +78,11 @@ public class Recipe {
     this.title = title;
   }
 
-  public Set<Category> getCategories() {
+  public List<Category> getCategories() {
     return categories;
   }
 
-  public void setCategories(Set<Category> categories) {
+  public void setCategories(List<Category> categories) {
     this.categories = categories;
   }
 
@@ -94,19 +94,19 @@ public class Recipe {
     this.yield = yield;
   }
 
-  public Set<RecipeIngredient> getIngredients() {
+  public List<RecipeIngredient> getIngredients() {
     return ingredients;
   }
 
-  public void setIngredients(Set<RecipeIngredient> ingredients) {
+  public void setIngredients(List<RecipeIngredient> ingredients) {
     this.ingredients = ingredients;
   }
 
-  public Set<String> getSteps() {
+  public List<String> getSteps() {
     return steps;
   }
 
-  public void setSteps(Set<String> steps) {
+  public void setSteps(List<String> steps) {
     this.steps = steps;
   }
 

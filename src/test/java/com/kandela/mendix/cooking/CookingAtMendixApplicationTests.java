@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.oneOf;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -89,10 +91,10 @@ public class CookingAtMendixApplicationTests {
     recipes = IntStream.range(0, 3)
         .mapToObj(i -> new Recipe(100L + i,
             recipesRaw[i],
-            categories.stream().filter(cat -> cat.getId() != 3L - i).collect(Collectors.toSet()),
+            categories.stream().filter(cat -> cat.getId() != 3L - i).collect(Collectors.toList()),
             2 * (i + 1),
-            Stream.of(ingredientsRaw).map(raw -> new RecipeIngredient(raw[0], raw[1], raw[2])).skip(i).limit(4).collect(Collectors.toSet()),
-            Stream.of(steps[i]).collect(Collectors.toSet())))
+            Stream.of(ingredientsRaw).map(raw -> new RecipeIngredient(raw[0], raw[1], raw[2])).skip(i).limit(4).collect(Collectors.toList()),
+            Arrays.asList(steps[i])))
         .collect(Collectors.toList());
   }
 
@@ -148,7 +150,12 @@ public class CookingAtMendixApplicationTests {
 
   @Test
   void testAddRecipe() throws Exception {
-    Recipe newRecipe = recipes.get(0);
+    Recipe newRecipe = new Recipe("New Recipe", categories, 8,
+        Arrays.asList(new RecipeIngredient("Secret Ingredient", null, null)),
+        Arrays.asList("Small string", bigString));
+
+    Mockito.when(recipeRepo.save(any())).thenReturn(new Recipe(999L, newRecipe.getTitle(), newRecipe.getCategories(),
+        newRecipe.getYield(), newRecipe.getIngredients(), newRecipe.getSteps()));
 
     mockMvc.perform(post("/recipes")
         .content(new ObjectMapper().writeValueAsString(newRecipe))
@@ -156,8 +163,8 @@ public class CookingAtMendixApplicationTests {
         .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
-        .andExpect(jsonPath("$.id").exists());
+        .andExpect(jsonPath("$.id", is(999)));
 
-    Mockito.verify(recipeRepo, times(1)).save(newRecipe);
+    Mockito.verify(recipeRepo, times(1)).save(any());
   }
 }
