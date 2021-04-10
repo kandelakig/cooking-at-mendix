@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.oneOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -94,7 +93,7 @@ public class CookingAtMendixApplicationTests {
             categories.stream().filter(cat -> cat.getId() != 3L - i).collect(Collectors.toList()),
             2 * (i + 1),
             Stream.of(ingredientsRaw).map(raw -> new RecipeIngredient(raw[0], raw[1], raw[2])).skip(i).limit(4).collect(Collectors.toList()),
-            Arrays.asList(steps[i])))
+            Arrays.asList(Arrays.copyOf(steps, i + 1))))
         .collect(Collectors.toList());
   }
 
@@ -131,21 +130,24 @@ public class CookingAtMendixApplicationTests {
         .andExpect(jsonPath("$[0].categories", hasSize(2)))
         .andExpect(jsonPath("$[1].categories", hasSize(2)))
         .andExpect(jsonPath("$[2].categories", hasSize(2)))
-        .andExpect(jsonPath("$[0].categories[0].name", oneOf("Main dish", "Cake")))
-        .andExpect(jsonPath("$[1].categories[1].name", oneOf("Main dish", "Veggie")))
-        .andExpect(jsonPath("$[2].categories[0].name", oneOf("Cake", "Veggie")))
+        .andExpect(jsonPath("$[0].categories[0].name", is("Main dish")))
+        .andExpect(jsonPath("$[0].categories[1].name", is("Cake")))
+        .andExpect(jsonPath("$[1].categories[0].name", is("Main dish")))
+        .andExpect(jsonPath("$[1].categories[1].name", is("Veggie")))
+        .andExpect(jsonPath("$[2].categories[0].name", is("Cake")))
+        .andExpect(jsonPath("$[2].categories[1].name", is("Veggie")))
         .andExpect(jsonPath("$[0].ingredients", hasSize(4)))
         .andExpect(jsonPath("$[1].ingredients", hasSize(4)))
         .andExpect(jsonPath("$[2].ingredients", hasSize(4)))
-        .andExpect(jsonPath("$[0].ingredients[0].item", oneOf("Zucchini; cubed 1/2", "Butter or margarine", "Cheddar cheese; shredded", "Onion; large, chopped")))
-        .andExpect(jsonPath("$[1].ingredients[1].item", oneOf("Butter or margarine", "Cheddar cheese; shredded", "Onion; large, chopped", "Hot pepper sauce; to taste")))
-        .andExpect(jsonPath("$[2].ingredients[2].item", oneOf("Cheddar cheese; shredded", "Onion; large, chopped", "Hot pepper sauce; to taste", "Toasted Almonds; chopped")))
+        .andExpect(jsonPath("$[0].ingredients[0].item", is("Zucchini; cubed 1/2")))
+        .andExpect(jsonPath("$[1].ingredients[0].item", is("Butter or margarine")))
+        .andExpect(jsonPath("$[2].ingredients[0].item", is("Cheddar cheese; shredded")))
         .andExpect(jsonPath("$[0].steps", hasSize(1)))
-        .andExpect(jsonPath("$[1].steps", hasSize(1)))
-        .andExpect(jsonPath("$[2].steps", hasSize(1)))
+        .andExpect(jsonPath("$[1].steps", hasSize(2)))
+        .andExpect(jsonPath("$[2].steps", hasSize(3)))
         .andExpect(jsonPath("$[0].steps[0]", is("First Step")))
-        .andExpect(jsonPath("$[1].steps[0]", emptyString()))
-        .andExpect(jsonPath("$[2].steps[0]", hasLength(bigString.length())));
+        .andExpect(jsonPath("$[1].steps[1]", emptyString()))
+        .andExpect(jsonPath("$[2].steps[2]", hasLength(bigString.length())));
   }
 
   @Test
