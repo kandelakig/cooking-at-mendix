@@ -13,6 +13,7 @@ public class RecipeIngredient {
 
   @Id
   @GeneratedValue
+  @JsonIgnore
   private Long id;
 
   private String item;
