@@ -52,6 +52,16 @@ public class Recipe {
     this.steps = steps;
   }
 
+  public Recipe(Long id, String title, Set<Category> categories, Integer yield, Set<RecipeIngredient> ingredients, Set<String> steps) {
+    super();
+    this.id = id;
+    this.title = title;
+    this.categories = categories;
+    this.yield = yield;
+    this.ingredients = ingredients;
+    this.steps = steps;
+  }
+
   public Long getId() {
     return id;
   }

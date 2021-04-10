@@ -40,9 +40,15 @@ public class SanityTest {
   }
 
   @Test
-  void httpEndpointsShouldReturnStatus200() {
+  void validEndpointsShouldReturnStatus200() {
     webClient.get().uri("/recipes").exchange().expectStatus().isOk();
     webClient.get().uri("/categories").exchange().expectStatus().isOk();
+  }
+
+  @Test
+  void invalidEndpointsShouldReturnStatus404() {
+    webClient.get().uri("/").exchange().expectStatus().isNotFound();
+    webClient.get().uri("/viruses").exchange().expectStatus().isNotFound();
   }
 
 }
