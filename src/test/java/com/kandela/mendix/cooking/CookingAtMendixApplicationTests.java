@@ -4,14 +4,14 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.oneOf;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.mockito.Mockito.times;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.verification.VerificationMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -70,7 +69,7 @@ public class CookingAtMendixApplicationTests {
   CookingAtMendixApplicationTests() {
     String[] categoriesRaw = { "Main dish", "Cake", "Veggie" };
 
-    categories = LongStream.range(1L, 3L)
+    categories = LongStream.range(1L, 4L)
         .mapToObj(i -> new Category(i, categoriesRaw[(int) (i - 1)]))
         .collect(Collectors.toList());
 
@@ -83,19 +82,17 @@ public class CookingAtMendixApplicationTests {
         { "Toasted Almonds; chopped", "1/2", "cups" }
     };
 
-    Stream<RecipeIngredient> ingredients = Stream.of(ingredientsRaw).map(raw -> new RecipeIngredient(raw[0], raw[1], raw[2]));
-
     String[] steps = { "First Step", "", bigString };
 
     String[] recipesRaw = { "Good Recipe", "Bad Recipe", "Ugly Recipe" };
 
-    recipes = IntStream.range(0, 2)
+    recipes = IntStream.range(0, 3)
         .mapToObj(i -> new Recipe(100L + i,
             recipesRaw[i],
             categories.stream().filter(cat -> cat.getId() != 3L - i).collect(Collectors.toSet()),
             2 * (i + 1),
-            ingredients.skip(i).limit(4).collect(Collectors.toSet()),
-            IntStream.range(1, i + 1).mapToObj(j -> steps[j]).collect(Collectors.toSet())))
+            Stream.of(ingredientsRaw).map(raw -> new RecipeIngredient(raw[0], raw[1], raw[2])).skip(i).limit(4).collect(Collectors.toSet()),
+            Stream.of(steps[i]).collect(Collectors.toSet())))
         .collect(Collectors.toList());
   }
 
@@ -120,9 +117,9 @@ public class CookingAtMendixApplicationTests {
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(recipes.size())))
-        .andExpect(jsonPath("$[0].id", is(100L)))
-        .andExpect(jsonPath("$[1].id", is(101L)))
-        .andExpect(jsonPath("$[2].id", is(102L)))
+        .andExpect(jsonPath("$[0].id", is(100)))
+        .andExpect(jsonPath("$[1].id", is(101)))
+        .andExpect(jsonPath("$[2].id", is(102)))
         .andExpect(jsonPath("$[0].title", is("Good Recipe")))
         .andExpect(jsonPath("$[1].title", is("Bad Recipe")))
         .andExpect(jsonPath("$[2].title", is("Ugly Recipe")))
@@ -132,26 +129,21 @@ public class CookingAtMendixApplicationTests {
         .andExpect(jsonPath("$[0].categories", hasSize(2)))
         .andExpect(jsonPath("$[1].categories", hasSize(2)))
         .andExpect(jsonPath("$[2].categories", hasSize(2)))
-        .andExpect(jsonPath("$[0].categories[0].name", is("Main dish")))
-        .andExpect(jsonPath("$[0].categories[1].name", is("Cake")))
-        .andExpect(jsonPath("$[1].categories[0].name", is("Main dish")))
-        .andExpect(jsonPath("$[1].categories[1].name", is("Veggie")))
-        .andExpect(jsonPath("$[2].categories[0].name", is("Cake")))
-        .andExpect(jsonPath("$[2].categories[1].name", is("Veggie")))
+        .andExpect(jsonPath("$[0].categories[0].name", oneOf("Main dish", "Cake")))
+        .andExpect(jsonPath("$[1].categories[1].name", oneOf("Main dish", "Veggie")))
+        .andExpect(jsonPath("$[2].categories[0].name", oneOf("Cake", "Veggie")))
         .andExpect(jsonPath("$[0].ingredients", hasSize(4)))
         .andExpect(jsonPath("$[1].ingredients", hasSize(4)))
         .andExpect(jsonPath("$[2].ingredients", hasSize(4)))
-        .andExpect(jsonPath("$[0].ingredients[0].item", is("Zucchini; cubed 1/2")))
-        .andExpect(jsonPath("$[1].ingredients[0].item", is("Butter or margarine")))
-        .andExpect(jsonPath("$[2].ingredients[0].item", is("Cheddar cheese; shredded")))
-        .andExpect(jsonPath("$[2].ingredients[2].quantity", nullValue()))
-        .andExpect(jsonPath("$[2].ingredients[2].unit", nullValue()))
+        .andExpect(jsonPath("$[0].ingredients[0].item", oneOf("Zucchini; cubed 1/2", "Butter or margarine", "Cheddar cheese; shredded", "Onion; large, chopped")))
+        .andExpect(jsonPath("$[1].ingredients[1].item", oneOf("Butter or margarine", "Cheddar cheese; shredded", "Onion; large, chopped", "Hot pepper sauce; to taste")))
+        .andExpect(jsonPath("$[2].ingredients[2].item", oneOf("Cheddar cheese; shredded", "Onion; large, chopped", "Hot pepper sauce; to taste", "Toasted Almonds; chopped")))
         .andExpect(jsonPath("$[0].steps", hasSize(1)))
-        .andExpect(jsonPath("$[1].steps", hasSize(2)))
-        .andExpect(jsonPath("$[2].steps", hasSize(3)))
+        .andExpect(jsonPath("$[1].steps", hasSize(1)))
+        .andExpect(jsonPath("$[2].steps", hasSize(1)))
         .andExpect(jsonPath("$[0].steps[0]", is("First Step")))
-        .andExpect(jsonPath("$[1].steps[1]", emptyString()))
-        .andExpect(jsonPath("$[2].steps[2]", hasLength(bigString.length())));
+        .andExpect(jsonPath("$[1].steps[0]", emptyString()))
+        .andExpect(jsonPath("$[2].steps[0]", hasLength(bigString.length())));
   }
 
   @Test
@@ -165,7 +157,7 @@ public class CookingAtMendixApplicationTests {
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
         .andExpect(jsonPath("$.id").exists());
-    
+
     Mockito.verify(recipeRepo, times(1)).save(newRecipe);
   }
 }
