@@ -27,8 +27,19 @@ public class RecipeController {
   }
 
   @RequestMapping(method = RequestMethod.GET, path = "/recipes", produces = "application/json")
-  public List<Recipe> list(@RequestParam(name = "category", required = false) Long categoryId) {
-    return categoryId == null ? repo.findAll() : repo.findByCategory(categoryId);
+  public List<Recipe> list(
+      @RequestParam(name = "category", required = false) Long categoryId,
+      @RequestParam(name = "q", required = false) String searchString) {
+
+    if (categoryId != null && searchString != null && searchString.length() > 0) {
+      return repo.findByCombinedFilter(categoryId, "%" + searchString + "%");
+    } else if (categoryId != null) {
+      return repo.findByCategory(categoryId);
+    } else if (searchString != null && searchString.length() > 0) {
+      return repo.findBySearchString("%" + searchString + "%");
+    } else {
+      return repo.findAll();
+    }
   }
 
   @RequestMapping(method = RequestMethod.POST, path = "/recipes", consumes = "application/json", produces = "application/json")

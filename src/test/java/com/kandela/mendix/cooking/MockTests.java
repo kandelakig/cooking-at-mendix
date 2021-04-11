@@ -1,14 +1,14 @@
 package com.kandela.mendix.cooking;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -152,6 +152,9 @@ public class MockTests {
         .andExpect(jsonPath("$[2].steps[2]", hasLength(bigString.length())));
 
     Mockito.verify(recipeRepo, times(1)).findAll();
+    Mockito.verify(recipeRepo, never()).findByCategory(any());
+    Mockito.verify(recipeRepo, never()).findBySearchString(any());
+    Mockito.verify(recipeRepo, never()).findByCombinedFilter(any(), any());
   }
 
   @Test
@@ -168,14 +171,53 @@ public class MockTests {
         .andExpect(jsonPath("$", hasSize(filteredRecipes.size())))
         .andExpect(jsonPath("$[*].categories[*].id", hasItem(1)));
 
+    Mockito.verify(recipeRepo, never()).findAll();
     Mockito.verify(recipeRepo, times(1)).findByCategory(1L);
+    Mockito.verify(recipeRepo, never()).findBySearchString(any());
+    Mockito.verify(recipeRepo, never()).findByCombinedFilter(any(), any());
+  }
+
+  @Test
+  void testListRecipesWithSearchString() throws Exception {
+    List<Recipe> filteredRecipes = Arrays.asList(recipes.get(2));
+
+    Mockito.when(recipeRepo.findBySearchString("%UgLy%")).thenReturn(filteredRecipes);
+
+    mockMvc.perform(get("/recipes?q=UgLy"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(filteredRecipes.size())))
+        .andExpect(jsonPath("$[0].title", is("Ugly Recipe")));
+
+    Mockito.verify(recipeRepo, never()).findAll();
+    Mockito.verify(recipeRepo, never()).findByCategory(any());
+    Mockito.verify(recipeRepo, times(1)).findBySearchString("%UgLy%");
+    Mockito.verify(recipeRepo, never()).findByCombinedFilter(any(), any());
+  }
+
+  @Test
+  void testListRecipesWithCombinedFilter() throws Exception {
+    List<Recipe> filteredRecipes = Arrays.asList(recipes.get(2));
+
+    Mockito.when(recipeRepo.findByCombinedFilter(3L, "%UgLy%")).thenReturn(filteredRecipes);
+
+    mockMvc.perform(get("/recipes?category=3&q=UgLy"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(filteredRecipes.size())))
+        .andExpect(jsonPath("$[0].title", is("Ugly Recipe")));
+
+    Mockito.verify(recipeRepo, never()).findAll();
+    Mockito.verify(recipeRepo, never()).findByCategory(any());
+    Mockito.verify(recipeRepo, never()).findBySearchString(any());
+    Mockito.verify(recipeRepo, times(1)).findByCombinedFilter(3L, "%UgLy%");
   }
 
   @Test
   void testListRecipesWithInvalidFilter() throws Exception {
     mockMvc.perform(get("/recipes?category=somethingstupid"))
-    .andDo(print())
-    .andExpect(status().isBadRequest());
+        .andDo(print())
+        .andExpect(status().isBadRequest());
 
     Mockito.verify(recipeRepo, never()).findByCategory(any());
     Mockito.verify(recipeRepo, never()).findAll();

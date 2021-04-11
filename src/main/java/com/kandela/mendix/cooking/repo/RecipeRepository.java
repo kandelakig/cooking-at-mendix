@@ -15,4 +15,11 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
   @Query("select r from Recipe r join r.categories c where c.id = :categoryId")
   public List<Recipe> findByCategory(@Param("categoryId") Long categoryId);
 
+  @Query("select r from Recipe r join r.steps s where lower(r.title) like lower(:searchString) or lower(s) like lower(:searchString)")
+  public List<Recipe> findBySearchString(@Param("searchString") String searchString);
+
+  @Query("select r from Recipe r join r.categories c join r.steps s "
+      + "where c.id = :categoryId and (lower(r.title) like lower(:searchString) or lower(s) like lower(:searchString))")
+  public List<Recipe> findByCombinedFilter(@Param("categoryId") Long categoryId, @Param("searchString") String searchString);
+
 }
