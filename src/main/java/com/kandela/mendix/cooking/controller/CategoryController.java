@@ -11,6 +11,7 @@ import com.kandela.mendix.cooking.model.Category;
 import com.kandela.mendix.cooking.repo.CategoryRepository;
 
 @RestController
+@RequestMapping("categories")
 public class CategoryController {
 
   @Autowired
@@ -21,7 +22,7 @@ public class CategoryController {
     this.repo = repo;
   }
 
-  @RequestMapping(method = RequestMethod.GET, path = "/categories", produces = "application/json")
+  @RequestMapping(method = RequestMethod.GET, produces = "application/json")
   public List<Category> list() {
     return repo.findAll();
   }

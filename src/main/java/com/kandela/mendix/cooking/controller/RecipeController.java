@@ -16,6 +16,7 @@ import com.kandela.mendix.cooking.model.Recipe;
 import com.kandela.mendix.cooking.repo.RecipeRepository;
 
 @RestController
+@RequestMapping("recipes")
 public class RecipeController {
 
   @Autowired
@@ -26,7 +27,7 @@ public class RecipeController {
     this.repo = repo;
   }
 
-  @RequestMapping(method = RequestMethod.GET, path = "/recipes", produces = "application/json")
+  @RequestMapping(method = RequestMethod.GET, produces = "application/json")
   public List<Recipe> list(
       @RequestParam(name = "category", required = false) Long categoryId,
       @RequestParam(name = "q", required = false) String searchString) {
@@ -42,7 +43,7 @@ public class RecipeController {
     }
   }
 
-  @RequestMapping(method = RequestMethod.POST, path = "/recipes", consumes = "application/json", produces = "application/json")
+  @RequestMapping(method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
   public ResponseEntity<Recipe> add(@RequestBody Recipe newRecipe, UriComponentsBuilder uriComponentsBuilder) {
     Recipe recipe = repo.save(newRecipe);
 
