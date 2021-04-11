@@ -1,6 +1,7 @@
 package com.kandela.mendix.cooking;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,5 +47,23 @@ public class WebLayerTests {
         .andExpect(content().string(containsString("30 Minute Chili")))
         .andExpect(content().string(containsString("Amaretto Cake")))
         .andExpect(content().string(containsString("Another Zucchini Dish")));
+  }
+
+  @Test
+  void categoryFilterShouldReturnCorrectRecipesForInitialData() throws Exception {
+    mockMvc.perform(get("/recipes?category=1"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(1)))
+        .andExpect(jsonPath("$[*].categories[*].id", hasItem(1)));
+
+    mockMvc.perform(get("/recipes?category=0"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(0)));
+
+    mockMvc.perform(get("/recipes?category=somethingstupid"))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
   }
 }

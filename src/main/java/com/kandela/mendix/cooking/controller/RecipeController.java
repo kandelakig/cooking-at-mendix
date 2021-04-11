@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -26,8 +27,8 @@ public class RecipeController {
   }
 
   @RequestMapping(method = RequestMethod.GET, path = "/recipes", produces = "application/json")
-  public List<Recipe> list() {
-    return repo.findAll();
+  public List<Recipe> list(@RequestParam(name = "category", required = false) Long categoryId) {
+    return categoryId == null ? repo.findAll() : repo.findByCategory(categoryId);
   }
 
   @RequestMapping(method = RequestMethod.POST, path = "/recipes", consumes = "application/json", produces = "application/json")
