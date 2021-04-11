@@ -1,11 +1,14 @@
 package com.kandela.mendix.cooking;
 
 import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -108,6 +111,8 @@ public class MockTests {
         .andExpect(jsonPath("$[0].name", is(categories.get(0).getName())))
         .andExpect(jsonPath("$[1].name", is(categories.get(1).getName())))
         .andExpect(jsonPath("$[2].name", is(categories.get(2).getName())));
+
+    Mockito.verify(categoryRepo, times(1)).findAll();
   }
 
   @Test
@@ -130,12 +135,9 @@ public class MockTests {
         .andExpect(jsonPath("$[0].categories", hasSize(2)))
         .andExpect(jsonPath("$[1].categories", hasSize(2)))
         .andExpect(jsonPath("$[2].categories", hasSize(2)))
-        .andExpect(jsonPath("$[0].categories[0].name", is("Main dish")))
-        .andExpect(jsonPath("$[0].categories[1].name", is("Cake")))
-        .andExpect(jsonPath("$[1].categories[0].name", is("Main dish")))
-        .andExpect(jsonPath("$[1].categories[1].name", is("Veggie")))
-        .andExpect(jsonPath("$[2].categories[0].name", is("Cake")))
-        .andExpect(jsonPath("$[2].categories[1].name", is("Veggie")))
+        .andExpect(jsonPath("$[0].categories[*].name", containsInAnyOrder("Main dish", "Cake")))
+        .andExpect(jsonPath("$[1].categories[*].name", containsInAnyOrder("Main dish", "Veggie")))
+        .andExpect(jsonPath("$[2].categories[*].name", containsInAnyOrder("Cake", "Veggie")))
         .andExpect(jsonPath("$[0].ingredients", hasSize(4)))
         .andExpect(jsonPath("$[1].ingredients", hasSize(4)))
         .andExpect(jsonPath("$[2].ingredients", hasSize(4)))
@@ -148,6 +150,35 @@ public class MockTests {
         .andExpect(jsonPath("$[0].steps[0]", is("First Step")))
         .andExpect(jsonPath("$[1].steps[1]", emptyString()))
         .andExpect(jsonPath("$[2].steps[2]", hasLength(bigString.length())));
+
+    Mockito.verify(recipeRepo, times(1)).findAll();
+  }
+
+  @Test
+  void testListRecipesWithCategoryFilter() throws Exception {
+    List<Recipe> filteredRecipes = recipes.stream()
+        .filter(rcp -> rcp.getCategories().stream().anyMatch(cat -> cat.getId() == 1L))
+        .collect(Collectors.toList());
+
+    Mockito.when(recipeRepo.findByCategory(1L)).thenReturn(filteredRecipes);
+
+    mockMvc.perform(get("/recipes?category=1"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(filteredRecipes.size())))
+        .andExpect(jsonPath("$[*].categories[*].id", hasItem(1)));
+
+    Mockito.verify(recipeRepo, times(1)).findByCategory(1L);
+  }
+
+  @Test
+  void testListRecipesWithInvalidFilter() throws Exception {
+    mockMvc.perform(get("/recipes?category=somethingstupid"))
+    .andDo(print())
+    .andExpect(status().isBadRequest());
+
+    Mockito.verify(recipeRepo, never()).findByCategory(any());
+    Mockito.verify(recipeRepo, never()).findAll();
   }
 
   @Test

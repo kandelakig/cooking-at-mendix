@@ -61,9 +61,5 @@ public class WebLayerTests {
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(0)));
-
-    mockMvc.perform(get("/recipes?category=somethingstupid"))
-        .andDo(print())
-        .andExpect(status().isBadRequest());
   }
 }
