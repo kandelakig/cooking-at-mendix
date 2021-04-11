@@ -8,6 +8,7 @@
         <cat>Chili</cat>
       </categories>
       <yield>6</yield>
+      <timeNeeded>30 min.</timeNeeded>
     </head>
     <ingredients>
       <ing>
@@ -82,6 +83,7 @@
         <cat>Cake mixes</cat>
       </categories>
       <yield>1</yield>
+      <timeNeeded>1 hr. 30 min.</timeNeeded>
     </head>
     <ingredients>
       <ing>
@@ -209,6 +211,7 @@
         <cat>Vegetables</cat>
       </categories>
       <yield>6</yield>
+      <timeNeeded>3/4 hr.</timeNeeded>
     </head>
     <ingredients>
       <ing>

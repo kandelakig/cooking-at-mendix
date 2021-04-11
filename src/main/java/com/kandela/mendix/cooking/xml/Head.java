@@ -4,6 +4,7 @@ public class Head {
   private String title;
   private Categories categories;
   private int yield;
+  private String timeNeeded;
 
   public String getTitle() {
     return title;
@@ -27,6 +28,14 @@ public class Head {
 
   public void setYield(int yield) {
     this.yield = yield;
+  }
+
+  public String getTimeNeeded() {
+    return timeNeeded;
+  }
+
+  public void setTimeNeeded(String timeNeeded) {
+    this.timeNeeded = timeNeeded;
   }
 
 }

@@ -39,27 +39,25 @@ public class Recipe {
   @Column(name = "step", length = 4096)
   private List<String> steps;
 
+  private String timeNeeded;
+
   public Recipe() {
     super();
   }
 
-  public Recipe(String title, List<Category> categories, Integer yield, List<RecipeIngredient> ingredients, List<String> steps) {
+  public Recipe(String title, List<Category> categories, Integer yield, List<RecipeIngredient> ingredients, List<String> steps, String timeNeeded) {
     super();
     this.title = title;
     this.categories = categories;
     this.yield = yield;
     this.ingredients = ingredients;
     this.steps = steps;
+    this.timeNeeded = timeNeeded;
   }
 
-  public Recipe(Long id, String title, List<Category> categories, Integer yield, List<RecipeIngredient> ingredients, List<String> steps) {
-    super();
+  public Recipe(Long id, String title, List<Category> categories, Integer yield, List<RecipeIngredient> ingredients, List<String> steps, String timeNeeded) {
+    this(title, categories, yield, ingredients, steps, timeNeeded);
     this.id = id;
-    this.title = title;
-    this.categories = categories;
-    this.yield = yield;
-    this.ingredients = ingredients;
-    this.steps = steps;
   }
 
   public Long getId() {
@@ -108,6 +106,14 @@ public class Recipe {
 
   public void setSteps(List<String> steps) {
     this.steps = steps;
+  }
+
+  public String getTimeNeeded() {
+    return timeNeeded;
+  }
+
+  public void setTimeNeeded(String timeNeeded) {
+    this.timeNeeded = timeNeeded;
   }
 
 }

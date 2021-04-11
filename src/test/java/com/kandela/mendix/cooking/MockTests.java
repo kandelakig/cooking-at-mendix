@@ -96,7 +96,8 @@ public class MockTests {
             categories.stream().filter(cat -> cat.getId() != 3L - i).collect(Collectors.toList()),
             2 * (i + 1),
             Stream.of(ingredientsRaw).map(raw -> new RecipeIngredient(raw[0], raw[1], raw[2])).skip(i).limit(4).collect(Collectors.toList()),
-            Arrays.asList(Arrays.copyOf(steps, i + 1))))
+            Arrays.asList(Arrays.copyOf(steps, i + 1)),
+            "1 hr."))
         .collect(Collectors.toList());
   }
 
@@ -149,7 +150,10 @@ public class MockTests {
         .andExpect(jsonPath("$[2].steps", hasSize(3)))
         .andExpect(jsonPath("$[0].steps[0]", is("First Step")))
         .andExpect(jsonPath("$[1].steps[1]", emptyString()))
-        .andExpect(jsonPath("$[2].steps[2]", hasLength(bigString.length())));
+        .andExpect(jsonPath("$[2].steps[2]", hasLength(bigString.length())))
+        .andExpect(jsonPath("$[0].timeNeeded", is("1 hr.")))
+        .andExpect(jsonPath("$[1].timeNeeded", is("1 hr.")))
+        .andExpect(jsonPath("$[2].timeNeeded", is("1 hr.")));
 
     Mockito.verify(recipeRepo, times(1)).findAll();
     Mockito.verify(recipeRepo, never()).findByCategory(any());
@@ -227,10 +231,11 @@ public class MockTests {
   void testAddRecipe() throws Exception {
     Recipe newRecipe = new Recipe("New Recipe", categories, 8,
         Arrays.asList(new RecipeIngredient("Secret Ingredient", null, null)),
-        Arrays.asList("Small string", bigString));
+        Arrays.asList("Small string", bigString),
+        "1 hr.");
 
     Mockito.when(recipeRepo.save(any())).thenReturn(new Recipe(999L, newRecipe.getTitle(), newRecipe.getCategories(),
-        newRecipe.getYield(), newRecipe.getIngredients(), newRecipe.getSteps()));
+        newRecipe.getYield(), newRecipe.getIngredients(), newRecipe.getSteps(), "1 hr."));
 
     mockMvc.perform(post("/recipes")
         .content(new ObjectMapper().writeValueAsString(newRecipe))

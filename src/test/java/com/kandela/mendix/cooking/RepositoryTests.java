@@ -106,7 +106,7 @@ public class RepositoryTests {
   void testAddRecipe() throws Exception {
     Recipe newRecipe = new Recipe("New Recipe", categories, 8,
         Arrays.asList(new RecipeIngredient("Secret Ingredient", null, null)),
-        Arrays.asList("Small string", bigString));
+        Arrays.asList("Small string", bigString), "1 hr.");
 
     Recipe createdRecipe = recipeRepo.save(newRecipe);
 

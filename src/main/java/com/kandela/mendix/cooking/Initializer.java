@@ -3,7 +3,6 @@ package com.kandela.mendix.cooking;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.boot.CommandLineRunner;
@@ -46,7 +45,7 @@ public class Initializer {
                 .map(ing -> new RecipeIngredient(ing.getItem(), ing.getAmt().getQty(), ing.getAmt().getUnit())).collect(Collectors.toList());
             List<String> steps = rcp.getDirections().getStep().stream().collect(Collectors.toList());
 
-            return new Recipe(head.getTitle(), categories, head.getYield(), ingredients, steps);
+            return new Recipe(head.getTitle(), categories, head.getYield(), ingredients, steps, head.getTimeNeeded());
           })
           .forEach(recipeRepo::save);
     };
