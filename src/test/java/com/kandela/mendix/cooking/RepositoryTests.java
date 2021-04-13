@@ -12,7 +12,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 import com.kandela.mendix.cooking.model.Category;
 import com.kandela.mendix.cooking.model.Recipe;
@@ -20,7 +21,8 @@ import com.kandela.mendix.cooking.model.RecipeIngredient;
 import com.kandela.mendix.cooking.repo.CategoryRepository;
 import com.kandela.mendix.cooking.repo.RecipeRepository;
 
-@SpringBootTest
+@DataJpaTest
+@Import(Initializer.class)
 @TestMethodOrder(OrderAnnotation.class)
 public class RepositoryTests {
 
